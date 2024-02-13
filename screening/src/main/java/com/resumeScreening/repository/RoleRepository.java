@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.resumeScreening.model.UserRoles;
 
 @Repository
-public interface UserRolesRepository extends JpaRepository<UserRoles,Long>{
+public interface RoleRepository extends JpaRepository<UserRoles,Long>{
 
 }

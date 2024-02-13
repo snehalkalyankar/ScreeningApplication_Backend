@@ -9,13 +9,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.resumeScreening.model.UserRoles;
-import com.resumeScreening.repository.UserRolesRepository;
+import com.resumeScreening.repository.RoleRepository;
 
 @RestController
 @RequestMapping("/home")
 public class HomeController {
 	
-	@Autowired UserRolesRepository userRoleRepository;
+	@Autowired
+    RoleRepository userRoleRepository;
 
 	@GetMapping("/test")
 	public ResponseEntity<?> getHello(){

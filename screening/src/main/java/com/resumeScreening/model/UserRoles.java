@@ -1,62 +1,56 @@
 package com.resumeScreening.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "user_role")
 public class UserRoles {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "role_id")
-	private Long roleId;
-	
-	@Column(name = "role_desc")
-	private String roleDesc;
-	
-	@Column(name = "role_shortname")
-	private String roleShortName;
-	
-	@Column(name = "role_code")
-	private String roleCode;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "role_id")
+    private Long roleId;
 
-	public Long getRoleId() {
-		return roleId;
-	}
+    @Column(name = "role_desc")
+    private String roleDesc;
 
-	public void setRoleId(Long roleId) {
-		this.roleId = roleId;
-	}
+    @Column(name = "role_shortname")
+    private String roleShortName;
 
-	public String getRoleDesc() {
-		return roleDesc;
-	}
+    @Column(name = "role_code", unique = true)
+    private String roleCode;
 
-	public void setRoleDesc(String roleDesc) {
-		this.roleDesc = roleDesc;
-	}
+    public Long getRoleId() {
+        return roleId;
+    }
 
-	public String getRoleShortName() {
-		return roleShortName;
-	}
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
+    }
 
-	public void setRoleShortName(String roleShortName) {
-		this.roleShortName = roleShortName;
-	}
+    public String getRoleDesc() {
+        return roleDesc;
+    }
 
-	public String getRoleCode() {
-		return roleCode;
-	}
+    public void setRoleDesc(String roleDesc) {
+        this.roleDesc = roleDesc;
+    }
 
-	public void setRoleCode(String roleCode) {
-		this.roleCode = roleCode;
-	}
-	
-	
-	
+    public String getRoleShortName() {
+        return roleShortName;
+    }
+
+    public void setRoleShortName(String roleShortName) {
+        this.roleShortName = roleShortName;
+    }
+
+    public String getRoleCode() {
+        return roleCode;
+    }
+
+    public void setRoleCode(String roleCode) {
+        this.roleCode = roleCode;
+    }
+
+
 }
