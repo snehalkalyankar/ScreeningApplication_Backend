@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.resumeScreening.bean.JWTRequest;
 import com.resumeScreening.bean.JWTResponse;
+import com.resumeScreening.bean.SignUpBean;
 import com.resumeScreening.config.JWTHelper;
 
 @RestController
@@ -41,12 +42,10 @@ public class AuthenticationController {
 	    public ResponseEntity<JWTResponse> login(@RequestBody JWTRequest request) {
 
 	        this.doAuthenticate(request.getUsername(), request.getPassString());
-
-
 	        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
 	        String token = this.jwtHelper.generateToken(userDetails);
-
 	        JWTResponse response = new JWTResponse(token,userDetails.getUsername());
+	        
 	        return new ResponseEntity<>(response, HttpStatus.OK);
 	    }
 
@@ -55,17 +54,28 @@ public class AuthenticationController {
 	        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
 	        try {
 	            authenticationManager.authenticate(authentication);
-
-
 	        } catch (BadCredentialsException e) {
 	            throw new BadCredentialsException(" Invalid Username or Password  !!");
 	        }
-
 	    }
 
 	    @ExceptionHandler(BadCredentialsException.class)
 	    public String exceptionHandler() {
 	        return "Credentials Invalid !!";
+	    }
+	    
+	    
+	    
+	    @PostMapping("/SignUp")
+	    public ResponseEntity<?> signUp(@RequestBody SignUpBean bean){
+	    	try {
+	    		
+	    	}
+	    	catch (Exception e) {
+				// TODO: handle exception
+	    		e.printStackTrace();
+			}
+	    	return ResponseEntity.ok(null);
 	    }
 
 }
