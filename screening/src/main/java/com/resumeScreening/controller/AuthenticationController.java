@@ -20,6 +20,8 @@ import com.resumeScreening.bean.JWTRequest;
 import com.resumeScreening.bean.JWTResponse;
 import com.resumeScreening.bean.SignUpBean;
 import com.resumeScreening.config.JWTHelper;
+import com.resumeScreening.model.LoginTable;
+import com.resumeScreening.repository.LoginRepository;
 
 @RestController
 @RequestMapping("/auth")
@@ -34,6 +36,9 @@ public class AuthenticationController {
 	@Autowired
 	private JWTHelper jwtHelper;
 	
+	@Autowired
+	private LoginRepository loginRepository;
+	
 	
 	
 	private Logger logger =  LoggerFactory.getLogger(AuthenticationController.class);
@@ -42,16 +47,19 @@ public class AuthenticationController {
 	    public ResponseEntity<JWTResponse> login(@RequestBody JWTRequest request) {
 
 	        this.doAuthenticate(request.getUsername(), request.getPassString());
-	        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-	        String token = this.jwtHelper.generateToken(userDetails);
-	        JWTResponse response = new JWTResponse(token,userDetails.getUsername());
+	        
+	        LoginTable user = loginRepository.findByUserName(request.getUsername()).get();
+	        String token = this.jwtHelper.generateToken(user);
+	        JWTResponse response = new JWTResponse(token,user.getUsername());
 	        
 	        return new ResponseEntity<>(response, HttpStatus.OK);
 	    }
+	   
 
-	    private void doAuthenticate(String email, String password) {
+	    private void doAuthenticate(String username, String password) {
 
-	        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
+	        UsernamePasswordAuthenticationToken authentication =
+	        		new UsernamePasswordAuthenticationToken(username, password);
 	        try {
 	            authenticationManager.authenticate(authentication);
 	        } catch (BadCredentialsException e) {
