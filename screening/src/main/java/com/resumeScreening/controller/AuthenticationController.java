@@ -1,18 +1,5 @@
 package com.resumeScreening.controller;
 
-import com.resumeScreening.bean.JWTRequest;
-import com.resumeScreening.bean.JWTResponse;
-import com.resumeScreening.bean.PasswordUpdateRequest;
-import com.resumeScreening.bean.SignUpBean;
-import com.resumeScreening.config.JWTHelper;
-import com.resumeScreening.exception.UserNotFoundException;
-import com.resumeScreening.model.LoginTable;
-import com.resumeScreening.model.SignUpTable;
-import com.resumeScreening.model.UserRoles;
-import com.resumeScreening.repository.LoginRepository;
-import com.resumeScreening.repository.SignUpRepository;
-import com.resumeScreening.repository.UserRolesRepository;
-import com.resumeScreening.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +10,26 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.resumeScreening.bean.JWTRequest;
+import com.resumeScreening.bean.JWTResponse;
+import com.resumeScreening.bean.PasswordUpdateRequest;
+import com.resumeScreening.config.JWTHelper;
+import com.resumeScreening.dto.SignUpDto;
+import com.resumeScreening.exception.UserNotFoundException;
+import com.resumeScreening.model.LoginTable;
+import com.resumeScreening.model.SignUpTable;
+import com.resumeScreening.model.UserRoles;
+import com.resumeScreening.repository.LoginRepository;
+import com.resumeScreening.repository.SignUpRepository;
+import com.resumeScreening.repository.UserRolesRepository;
+import com.resumeScreening.service.UserService;
 
 @RestController
 @RequestMapping("/auth")
@@ -40,14 +46,7 @@ public class AuthenticationController {
     @Autowired
     private JWTHelper jwtHelper;
     
-    @Autowired
-	private LoginRepository loginRepository;
-	
-	@Autowired
-	private UserRolesRepository userRolesRepository;
-	
-	@Autowired
-	private SignUpRepository signUpRepository; 
+
 
 
     private Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
@@ -89,30 +88,16 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signUp")
-    public ResponseEntity<?> signUp(@RequestBody SignUpBean bean) {
+    public ResponseEntity<?> signUp(@RequestBody SignUpDto bean) {
+    	String status;
         try {
             // Create a LoginTable entity
-        	System.out.println("SignUp");
-        	
-            LoginTable login = new LoginTable();
-            login.setUserName(bean.getUsername());
-            login.setPassword(bean.getPassword());
-            UserRoles roles = userRolesRepository.findByRoleCode("002").get();
-            login.setRole(roles);
-            
-            login = loginRepository.save(login);
-
-            // Create a SignUpTable entity
-            SignUpTable signUpTable = new SignUpTable();
-            signUpTable.setEmail(bean.getEmail());
-            signUpTable.setLogin(login);
-            
-            signUpRepository.save(signUpTable);
+        	status = userService.SaveSignUp(bean);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Failed to sign up");
         }
-        return ResponseEntity.ok("Signed up successfully");
+        return ResponseEntity.ok(status);
     }
     
 

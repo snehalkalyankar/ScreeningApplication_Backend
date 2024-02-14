@@ -1,16 +1,17 @@
-package com.resumeScreening.bean;
+package com.resumeScreening.dto;
 
-public class SignUpBean {
+public class SignUpDto {
 
-	private String Email;
+	private String email;
 	private String password;
 	private String username;
 	
+
 	public String getEmail() {
-		return Email;
+		return email;
 	}
 	public void setEmail(String email) {
-		Email = email;
+		this.email = email;
 	}
 	public String getPassword() {
 		return password;
