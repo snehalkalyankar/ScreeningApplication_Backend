@@ -78,7 +78,7 @@ public class AuthenticationController {
     @PostMapping("/SignUp")
     public ResponseEntity<?> signUp(@RequestBody SignUpBean bean) {
         try {
-
+        	System.out.println("Hello");
         } catch (Exception e) {
             // TODO: handle exception
             e.printStackTrace();
