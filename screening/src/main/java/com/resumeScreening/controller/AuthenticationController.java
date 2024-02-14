@@ -92,6 +92,7 @@ public class AuthenticationController {
     public ResponseEntity<?> signUp(@RequestBody SignUpBean bean) {
         try {
             // Create a LoginTable entity
+        	System.out.println("SignUp");
         	
             LoginTable login = new LoginTable();
             login.setUserName(bean.getUsername());
