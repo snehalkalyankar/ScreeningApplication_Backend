@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional(rollbackOn = Exception.class)
 	public String SaveSignUp(SignUpDto bean) throws Exception {
 		// TODO Auto-generated method stub
-		try {
+		
         LoginTable login = new LoginTable();
         login.setUserName(bean.getUsername());
         login.setPassword(passwordEncoder.encode(bean.getPassword()));
@@ -71,11 +71,7 @@ public class UserServiceImpl implements UserService {
         signUpTable.setLogin(login);
         
         signUpRepository.save(signUpTable);
-		}
-		catch (Exception e) {
-			// TODO: handle exception
-			throw e;
-		}
+		
 		return "SUCCESS";
 	}
 }
