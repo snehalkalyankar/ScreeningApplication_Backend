@@ -6,7 +6,12 @@ import com.resumeScreening.bean.PasswordUpdateRequest;
 import com.resumeScreening.bean.SignUpBean;
 import com.resumeScreening.config.JWTHelper;
 import com.resumeScreening.exception.UserNotFoundException;
+import com.resumeScreening.model.LoginTable;
 import com.resumeScreening.model.SignUpTable;
+import com.resumeScreening.model.UserRoles;
+import com.resumeScreening.repository.LoginRepository;
+import com.resumeScreening.repository.SignUpRepository;
+import com.resumeScreening.repository.UserRolesRepository;
 import com.resumeScreening.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +39,15 @@ public class AuthenticationController {
 
     @Autowired
     private JWTHelper jwtHelper;
+    
+    @Autowired
+	private LoginRepository loginRepository;
+	
+	@Autowired
+	private UserRolesRepository userRolesRepository;
+	
+	@Autowired
+	private SignUpRepository signUpRepository; 
 
 
     private Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
@@ -74,16 +88,31 @@ public class AuthenticationController {
         return "Credentials Invalid !!";
     }
 
-
-    @PostMapping("/SignUp")
+    @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@RequestBody SignUpBean bean) {
         try {
-        	System.out.println("Hello User ");
+            // Create a LoginTable entity
+        	
+            LoginTable login = new LoginTable();
+            login.setUserName(bean.getUsername());
+            login.setPassword(bean.getPassword());
+            UserRoles roles = userRolesRepository.findByRoleCode("002").get();
+            login.setRole(roles);
+            
+            login = loginRepository.save(login);
+
+            // Create a SignUpTable entity
+            SignUpTable signUpTable = new SignUpTable();
+            signUpTable.setEmail(bean.getEmail());
+            signUpTable.setLogin(login);
+            
+            signUpRepository.save(signUpTable);
         } catch (Exception e) {
-            // TODO: handle exception
             e.printStackTrace();
+            return ResponseEntity.badRequest().body("Failed to sign up");
         }
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok("Signed up successfully");
     }
+    
 
 }
