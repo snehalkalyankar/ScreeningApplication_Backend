@@ -32,7 +32,7 @@ public class LoginTable implements UserDetails{
 	@Column(name = "login_id")
 	private Long loginId;
 	
-	@Column(name = "user_name")
+	@Column(name = "user_name", unique = true)
 	private String userName;
 	
 	@Column(name = "password")
