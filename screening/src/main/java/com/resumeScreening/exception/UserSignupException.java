@@ -2,7 +2,12 @@ package com.resumeScreening.exception;
 
 public class UserSignupException extends RuntimeException {
     
-    public UserSignupException(String message) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public UserSignupException(String message) {
     	
         super(message);
     }

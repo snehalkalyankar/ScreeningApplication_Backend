@@ -36,17 +36,9 @@ import com.resumeScreening.service.UserService;
 public class AuthenticationController {
 
     @Autowired
-    private UserDetailsService userDetailsService;
-    @Autowired
     private UserService userService;
 
     
-
-
-    
-
-
-
     private Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     @PostMapping("/login")
@@ -70,12 +62,9 @@ public class AuthenticationController {
     @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@RequestBody SignUpDto bean) {
     	String status = null;
-        try {
+      
 			status = userService.SaveSignUp(bean);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
         return ResponseEntity.ok(status);
     } 
     

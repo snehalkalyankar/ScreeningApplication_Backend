@@ -74,7 +74,11 @@ public class UserServiceImpl implements UserService {
 	@Transactional(rollbackOn = Exception.class)
 	public String SaveSignUp(SignUpDto bean) throws UserSignupException {
 		// TODO Auto-generated method stub
-
+		
+		if(signUpRepository.findByEmail(bean.getEmail()).orElse(null) != null) {
+			 throw new UserSignupException("User Already Registered!");
+		}
+		
 		if (!bean.getUsername().matches("[a-zA-Z0-9]+") || bean.getUsername().length() < 5) {
 	        throw new UserSignupException("Username must contain at least 5 alphanumeric characters.");
 	    }
@@ -84,6 +88,9 @@ public class UserServiceImpl implements UserService {
 	    if (!bean.getEmail().endsWith("@deloitte.com")) {
 	        throw new UserSignupException("Email must belong to deloitte.com domain.");
 	    }
+	    
+	    
+	    
         LoginTable login = new LoginTable();
         login.setUserName(bean.getUsername());
         login.setPassword(passwordEncoder.encode(bean.getPassword()));
