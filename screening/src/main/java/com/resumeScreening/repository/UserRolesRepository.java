@@ -9,4 +9,8 @@ import java.util.Optional;
 public interface UserRolesRepository extends JpaRepository<UserRoles,Long> {
     
     public Optional<UserRoles> findByRoleCode(String roleCode);
+    
+    
+    
+    
 }

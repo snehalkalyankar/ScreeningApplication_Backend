@@ -8,5 +8,6 @@ import com.resumeScreening.model.SignUpTable;
 
 public interface SignUpRepository extends JpaRepository<SignUpTable, Long> {
 	public Optional<SignUpTable> findByEmail(String email);
+	
 }
 

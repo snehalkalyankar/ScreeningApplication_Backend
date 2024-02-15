@@ -32,5 +32,23 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 	}
 	
+	@ExceptionHandler(UserSignupException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ResponseEntity<ExceptionResponse> handleSignupException(
+	        UserSignupException signupException, final HttpServletRequest request) {
+	    
+	    ExceptionResponse errorResponse = new ExceptionResponse();
+	    String statusMessage = HttpStatus.BAD_REQUEST.toString();
+	    errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+	    errorResponse.setExceptionType(signupException.getClass().getName());
+	    errorResponse.setMessage(statusMessage.substring(statusMessage.indexOf(" ") + 1));
+	    errorResponse.setExceptionMessege(signupException.getMessage());
+	    errorResponse.setPath(request.getRequestURI());
+	    errorResponse.setTimeStamp(LocalDateTime.now());
+	    
+	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+	}
+
+	
 	
 }
