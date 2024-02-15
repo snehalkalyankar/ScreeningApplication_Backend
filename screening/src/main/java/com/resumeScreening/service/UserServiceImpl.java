@@ -1,8 +1,11 @@
 package com.resumeScreening.service;
 
+import com.resumeScreening.bean.JWTRequest;
+import com.resumeScreening.bean.JWTResponse;
+import com.resumeScreening.config.JWTHelper;
 import com.resumeScreening.dto.SignUpDto;
+import com.resumeScreening.exception.AuthorizationException;
 import com.resumeScreening.exception.UserNotFoundException;
-import com.resumeScreening.exception.UserSignupException;
 import com.resumeScreening.model.LoginTable;
 import com.resumeScreening.model.SignUpTable;
 import com.resumeScreening.model.UserRoles;
@@ -13,6 +16,13 @@ import com.resumeScreening.repository.UserRolesRepository;
 import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +41,12 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     
-    
+    @Autowired
+    private JWTHelper jwtHelper;
+    @Autowired
+    private UserDetailsService userDetailsService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @Override
     public SignUpTable updatePassword(String currentPassword, String newPassword, String email) throws UserNotFoundException {
@@ -55,18 +70,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(rollbackOn = Exception.class)
-	public String SaveSignUp(SignUpDto bean) throws UserSignupException {
+	public String SaveSignUp(SignUpDto bean) throws Exception {
 		// TODO Auto-generated method stub
-		
-		if (!bean.getUsername().matches("[a-zA-Z0-9]+") || bean.getUsername().length() < 5) {
-	        throw new UserSignupException("Username must contain at least 5 alphanumeric characters.");
-	    }
-	    if (bean.getPassword().length() < 8) {
-	        throw new UserSignupException("Password must be at least 8 characters long.");
-	    }
-	    if (!bean.getEmail().endsWith("@deloitte.com")) {
-	        throw new UserSignupException("Email must belong to deloitte.com domain.");
-	    }
 		
         LoginTable login = new LoginTable();
         login.setUserName(bean.getUsername());
@@ -85,4 +90,27 @@ public class UserServiceImpl implements UserService {
 		
 		return "SUCCESS";
 	}
+	
+	
+	public JWTResponse validateLogin(JWTRequest request) throws AuthorizationException{
+		JWTResponse response = null;
+		try {
+			this.doAuthenticate(request.getUsername(), request.getPassString());
+            UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
+            String token = this.jwtHelper.generateToken(userDetails);
+            response = new JWTResponse(token, userDetails.getUsername());
+
+            return response;
+		}
+		catch (BadCredentialsException e) {
+			// TODO: handle exception
+			throw new AuthorizationException("Credentials Not Valid!");
+		}
+	}
+	
+	   private void doAuthenticate(String email, String password) {
+	        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
+	        authenticationManager.authenticate(authentication);
+	    }
+	   
 }

@@ -14,18 +14,18 @@ import jakarta.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 	
-	@ExceptionHandler(BadCredentialsException.class)
+	@ExceptionHandler(AuthorizationException.class)
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)
 	public ResponseEntity<ExceptionResponse> handleAuthException(
-			BadCredentialsException authorizationException, final HttpServletRequest request) {
+			AuthorizationException authorizationException, final HttpServletRequest request) {
 		
 		ExceptionResponse errorResponse = new ExceptionResponse();
 		
 		String statusMessage = HttpStatus.UNAUTHORIZED.toString();
 		errorResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 		errorResponse.setExceptionType(authorizationException.getClass().getName());
-		errorResponse.setMessage(statusMessage.substring(statusMessage.indexOf(" ") + 1));
-		errorResponse.setExceptionMessege(authorizationException.getMessage());
+		errorResponse.setMessage("Authentication Failed");
+		errorResponse.setExceptionMessege(statusMessage.substring(statusMessage.indexOf(" ") + 1));
 		errorResponse.setPath(request.getRequestURI());
 		errorResponse.setTimeStamp(LocalDateTime.now());
 		

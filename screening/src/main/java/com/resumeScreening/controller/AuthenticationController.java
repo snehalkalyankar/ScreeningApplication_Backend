@@ -40,11 +40,9 @@ public class AuthenticationController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    
 
-    @Autowired
-    private JWTHelper jwtHelper;
+
     
 
 
@@ -55,11 +53,7 @@ public class AuthenticationController {
     public ResponseEntity<?> login(@RequestBody JWTRequest request) {
     	JWTResponse response = null;
     	
-    		this.doAuthenticate(request.getUsername(), request.getPassString());
-            UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-            String token = this.jwtHelper.generateToken(userDetails);
-            response = new JWTResponse(token, userDetails.getUsername());
-
+    		response = userService.validateLogin(request);
             return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -71,11 +65,6 @@ public class AuthenticationController {
         } catch (UserNotFoundException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private void doAuthenticate(String email, String password) {
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
-        authenticationManager.authenticate(authentication);
     }
 
     @PostMapping("/signUp")
