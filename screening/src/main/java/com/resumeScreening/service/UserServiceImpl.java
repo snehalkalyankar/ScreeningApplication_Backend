@@ -6,6 +6,7 @@ import com.resumeScreening.config.JWTHelper;
 import com.resumeScreening.dto.SignUpDto;
 import com.resumeScreening.exception.AuthorizationException;
 import com.resumeScreening.exception.UserNotFoundException;
+import com.resumeScreening.exception.UserSignupException;
 import com.resumeScreening.model.LoginTable;
 import com.resumeScreening.model.SignUpTable;
 import com.resumeScreening.model.UserRoles;
@@ -68,11 +69,21 @@ public class UserServiceImpl implements UserService {
         return signUpRepository.save(existingUser);
     }
 
+
 	@Override
 	@Transactional(rollbackOn = Exception.class)
-	public String SaveSignUp(SignUpDto bean) throws Exception {
+	public String SaveSignUp(SignUpDto bean) throws UserSignupException {
 		// TODO Auto-generated method stub
-		
+
+		if (!bean.getUsername().matches("[a-zA-Z0-9]+") || bean.getUsername().length() < 5) {
+	        throw new UserSignupException("Username must contain at least 5 alphanumeric characters.");
+	    }
+	    if (bean.getPassword().length() < 8) {
+	        throw new UserSignupException("Password must be at least 8 characters long.");
+	    }
+	    if (!bean.getEmail().endsWith("@deloitte.com")) {
+	        throw new UserSignupException("Email must belong to deloitte.com domain.");
+	    }
         LoginTable login = new LoginTable();
         login.setUserName(bean.getUsername());
         login.setPassword(passwordEncoder.encode(bean.getPassword()));
