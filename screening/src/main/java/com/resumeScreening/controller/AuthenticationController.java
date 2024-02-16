@@ -3,9 +3,11 @@ package com.resumeScreening.controller;
 import com.resumeScreening.bean.JWTRequest;
 import com.resumeScreening.bean.JWTResponse;
 import com.resumeScreening.bean.PasswordUpdateRequest;
+import com.resumeScreening.dto.EmailDetailsDto;
 import com.resumeScreening.dto.SignUpDto;
 import com.resumeScreening.exception.UserNotFoundException;
 import com.resumeScreening.model.SignUpTable;
+import com.resumeScreening.service.EmailService;
 import com.resumeScreening.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,8 @@ public class AuthenticationController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private EmailService senderService;
 
 
     private Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
@@ -51,18 +55,51 @@ public class AuthenticationController {
         return ResponseEntity.ok(status);
     }
 
-    @PostMapping("/forgot-password/{email}")
-    public ResponseEntity<?> forgotPassword(@PathVariable String email) throws UserNotFoundException {
-        SignUpTable response = userService.forgotPassword(email);
+    @PutMapping("/sentOTP/{email}")
+    public ResponseEntity<?> sentOTPForForgotUserPassword(@PathVariable String email) {
+        try {
+            //generate OTP
+            Long otp = userService.generateOtp(email);
+            System.out.println("Otp generated");
 
-        if (response.getPasswordResetToken().isEmpty()) {
-            throw new RuntimeException("Token for Reset is Empty");
+            // Save the OTP to the database
+            userService.saveOtp(email, otp);
+            System.out.println("Otp saved to database");
+
+            // Email the user with the OTP
+            SignUpTable user = userService.getUser(email);
+            EmailDetailsDto details = getEmailDetails(email, user, otp);
+            senderService.sendEmail(details);
+            String message = "Mail sent successfully";
+            System.out.println(message);
+
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
         }
-        return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 
-    @PutMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestBody String password) throws UserNotFoundException {
-        return new ResponseEntity<>(userService.resetPassword(token, password), HttpStatus.OK);
+    private static EmailDetailsDto getEmailDetails(String email, SignUpTable user, Long otp) {
+        String content = "Dear " + user.getLogin().getUsername() + ", \n\n"
+                + "For security reason, you're required to use the following "
+                + "One Time Password to login: "
+                + otp
+                + "\nNote: this OTP is set to expire in 5 minutes."
+                + "\n\nRegards"
+                + "\nKanban Team";
+
+        String subject = "Here's your One Time Password (OTP) - Expire in 5 minutes!";
+
+        EmailDetailsDto details = new EmailDetailsDto();
+        details.setRecipient(email);
+        details.setMsgBody(content);
+        details.setSubject(subject);
+        return details;
+    }
+
+    @PutMapping("/forgot-password")
+    public ResponseEntity<?> forgotUserPassword(@RequestParam Long otp, @RequestParam String password) throws UserNotFoundException {
+        return new ResponseEntity<>(userService.forgotPassword(otp, password), HttpStatus.OK);
     }
 }

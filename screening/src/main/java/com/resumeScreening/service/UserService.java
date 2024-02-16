@@ -6,21 +6,20 @@ import com.resumeScreening.dto.SignUpDto;
 import com.resumeScreening.exception.AuthorizationException;
 import com.resumeScreening.exception.UserNotFoundException;
 import com.resumeScreening.exception.UserSignupException;
-import com.resumeScreening.model.LoginTable;
 import com.resumeScreening.model.SignUpTable;
-
 
 public interface UserService {
 
     SignUpTable updatePassword(String currentPassword, String newPassword, String email) throws UserNotFoundException;
-    
-    public String SaveSignUp(SignUpDto bean)throws UserSignupException;
-    
-    public JWTResponse validateLogin(JWTRequest request) throws AuthorizationException;
 
-	SignUpTable forgotPassword(String email) throws UserNotFoundException;
+    String SaveSignUp(SignUpDto bean) throws UserSignupException;
 
-	LoginTable resetPassword(String token, String password) throws UserNotFoundException;
+    JWTResponse validateLogin(JWTRequest request) throws AuthorizationException;
+    SignUpTable getUser(String email) throws UserNotFoundException;
 
-	String generateToken();
+    Long generateOtp(String email) throws UserNotFoundException;
+
+    void saveOtp(String email, Long otp) throws UserNotFoundException;
+
+    SignUpTable forgotPassword(Long otp, String password) throws UserNotFoundException;
 }

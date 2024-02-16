@@ -14,9 +14,8 @@ public class SignUpTable {
 
     @Column(name = "email", unique = true)
     private String email;
-    
-    @Column(name="token")
-    private String token;
+    @Column(name = "otp")
+    private Long otp;
     @OneToOne
     @JoinColumn(name = "login_id")
     @JsonBackReference
@@ -47,11 +46,11 @@ public class SignUpTable {
         this.login = login;
     }
 
-    public String getPasswordResetToken() {
-        return token;
+    public Long getOtp() {
+        return otp;
     }
 
-    public void setPasswordResetToken(String passwordResetToken) {
-        this.token = passwordResetToken;
+    public void setOtp(Long otp) {
+        this.otp = otp;
     }
 }

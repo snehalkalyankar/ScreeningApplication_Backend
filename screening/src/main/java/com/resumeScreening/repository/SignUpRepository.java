@@ -8,7 +8,7 @@ import com.resumeScreening.model.SignUpTable;
 
 public interface SignUpRepository extends JpaRepository<SignUpTable, Long> {
 	Optional<SignUpTable> findByEmail(String email);
-	SignUpTable findByToken(String token);
+	SignUpTable findByOtp(Long otp);
 	
 }
 

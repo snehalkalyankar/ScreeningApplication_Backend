@@ -13,12 +13,8 @@ import com.resumeScreening.model.UserRoles;
 import com.resumeScreening.repository.LoginRepository;
 import com.resumeScreening.repository.SignUpRepository;
 import com.resumeScreening.repository.UserRolesRepository;
-
 import jakarta.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,18 +24,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.UUID;
+import java.util.Random;
 
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
-	private LoginRepository loginRepository;
-	
-	@Autowired
-	private UserRolesRepository userRolesRepository;
-	
-	@Autowired
-	private SignUpRepository signUpRepository; 
+    private LoginRepository loginRepository;
+
+    @Autowired
+    private UserRolesRepository userRolesRepository;
+
+    @Autowired
+    private SignUpRepository signUpRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -58,7 +54,7 @@ public class UserServiceImpl implements UserService {
         }
         SignUpTable existingUser = user.get();
         LoginTable login = existingUser.getLogin();
-        boolean isCurrentPasswordAndExistingPasswordMatches = passwordEncoder.matches(currentPassword,login.getPassword());
+        boolean isCurrentPasswordAndExistingPasswordMatches = passwordEncoder.matches(login.getPassword(), currentPassword);
         if (login.getPassword() != null) {
             if (!isCurrentPasswordAndExistingPasswordMatches) {
                 throw new RuntimeException("Password does not match");
@@ -125,13 +121,26 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public SignUpTable getUser(String email) throws UserNotFoundException {
+        return signUpRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+    }
+
     private void doAuthenticate(String email, String password) {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
         authenticationManager.authenticate(authentication);
     }
 
     @Override
-    public SignUpTable forgotPassword(String email) throws UserNotFoundException {
+    public Long generateOtp(String email) throws UserNotFoundException {
+        if (Optional.ofNullable(signUpRepository.findByEmail(email)).isEmpty())
+            throw new UserNotFoundException();
+        Random random = new Random();
+        return (long) (random.nextInt(900000) + 100000);
+    }
+
+    @Override
+    public void saveOtp(String email, Long otp) throws UserNotFoundException {
         Optional<SignUpTable> userOptional = signUpRepository.findByEmail(email);
 
         if (userOptional.isEmpty()) {
@@ -139,15 +148,13 @@ public class UserServiceImpl implements UserService {
         }
 
         SignUpTable user = userOptional.get();
-        user.setPasswordResetToken(generateToken());
-
-        user = signUpRepository.save(user);
-        return user;
+        user.setOtp(otp);
+        signUpRepository.save(user);
     }
 
     @Override
-    public LoginTable resetPassword(String token, String password) throws UserNotFoundException {
-        Optional<SignUpTable> userOptional = Optional.ofNullable(signUpRepository.findByToken(token));
+    public SignUpTable forgotPassword(Long otp, String password) throws UserNotFoundException {
+        Optional<SignUpTable> userOptional = Optional.ofNullable(signUpRepository.findByOtp(otp));
 
         if (userOptional.isEmpty()) {
             throw new UserNotFoundException();
@@ -155,17 +162,13 @@ public class UserServiceImpl implements UserService {
 
         SignUpTable user = userOptional.get();
         LoginTable loginTable = user.getLogin();
-
         loginTable.setPassword(password);
         loginTable.setPassword(passwordEncoder.encode(loginTable.getPassword()));
-        user.setPasswordResetToken(null);
+        user.setLogin(loginTable);
+        user.setOtp(null);
 
         signUpRepository.save(user);
 
-        return loginTable;
-    }
-    @Override
-    public String generateToken() {
-        return UUID.randomUUID() + UUID.randomUUID().toString();
+        return user;
     }
 }
