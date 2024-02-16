@@ -14,7 +14,9 @@ public class SignUpTable {
 
     @Column(name = "email", unique = true)
     private String email;
-    private String passwordResetToken;
+    
+    @Column(name="token")
+    private String token;
     @OneToOne
     @JoinColumn(name = "login_id")
     @JsonBackReference
@@ -46,10 +48,10 @@ public class SignUpTable {
     }
 
     public String getPasswordResetToken() {
-        return passwordResetToken;
+        return token;
     }
 
     public void setPasswordResetToken(String passwordResetToken) {
-        this.passwordResetToken = passwordResetToken;
+        this.token = passwordResetToken;
     }
 }

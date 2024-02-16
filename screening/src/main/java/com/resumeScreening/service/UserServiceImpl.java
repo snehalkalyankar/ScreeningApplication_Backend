@@ -13,8 +13,12 @@ import com.resumeScreening.model.UserRoles;
 import com.resumeScreening.repository.LoginRepository;
 import com.resumeScreening.repository.SignUpRepository;
 import com.resumeScreening.repository.UserRolesRepository;
+
 import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,13 +33,13 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
-    private LoginRepository loginRepository;
-
-    @Autowired
-    private UserRolesRepository userRolesRepository;
-
-    @Autowired
-    private SignUpRepository signUpRepository;
+	private LoginRepository loginRepository;
+	
+	@Autowired
+	private UserRolesRepository userRolesRepository;
+	
+	@Autowired
+	private SignUpRepository signUpRepository; 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -54,7 +58,7 @@ public class UserServiceImpl implements UserService {
         }
         SignUpTable existingUser = user.get();
         LoginTable login = existingUser.getLogin();
-        boolean isCurrentPasswordAndExistingPasswordMatches = passwordEncoder.matches(login.getPassword(), currentPassword);
+        boolean isCurrentPasswordAndExistingPasswordMatches = passwordEncoder.matches(currentPassword,login.getPassword());
         if (login.getPassword() != null) {
             if (!isCurrentPasswordAndExistingPasswordMatches) {
                 throw new RuntimeException("Password does not match");
@@ -143,7 +147,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public LoginTable resetPassword(String token, String password) throws UserNotFoundException {
-        Optional<SignUpTable> userOptional = Optional.ofNullable(signUpRepository.findByResetPasswordToken(token));
+        Optional<SignUpTable> userOptional = Optional.ofNullable(signUpRepository.findByToken(token));
 
         if (userOptional.isEmpty()) {
             throw new UserNotFoundException();
@@ -160,7 +164,6 @@ public class UserServiceImpl implements UserService {
 
         return loginTable;
     }
-
     @Override
     public String generateToken() {
         return UUID.randomUUID() + UUID.randomUUID().toString();
