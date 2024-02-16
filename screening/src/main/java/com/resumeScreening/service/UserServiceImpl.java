@@ -13,12 +13,8 @@ import com.resumeScreening.model.UserRoles;
 import com.resumeScreening.repository.LoginRepository;
 import com.resumeScreening.repository.SignUpRepository;
 import com.resumeScreening.repository.UserRolesRepository;
-
 import jakarta.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,20 +24,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
-	private LoginRepository loginRepository;
-	
-	@Autowired
-	private UserRolesRepository userRolesRepository;
-	
-	@Autowired
-	private SignUpRepository signUpRepository; 
+    private LoginRepository loginRepository;
+
+    @Autowired
+    private UserRolesRepository userRolesRepository;
+
+    @Autowired
+    private SignUpRepository signUpRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    
+
     @Autowired
     private JWTHelper jwtHelper;
     @Autowired
@@ -70,65 +67,102 @@ public class UserServiceImpl implements UserService {
     }
 
 
-	@Override
-	@Transactional(rollbackOn = Exception.class)
-	public String SaveSignUp(SignUpDto bean) throws UserSignupException {
-		// TODO Auto-generated method stub
-		
-		if(signUpRepository.findByEmail(bean.getEmail()).orElse(null) != null) {
-			 throw new UserSignupException("User Already Registered!");
-		}
-		
-		if (!bean.getUsername().matches("[a-zA-Z0-9]+") || bean.getUsername().length() < 5) {
-	        throw new UserSignupException("Username must contain at least 5 alphanumeric characters.");
-	    }
-	    if (bean.getPassword().length() < 8) {
-	        throw new UserSignupException("Password must be at least 8 characters long.");
-	    }
-	    if (!bean.getEmail().endsWith("@deloitte.com")) {
-	        throw new UserSignupException("Email must belong to deloitte.com domain.");
-	    }
-	    
-	    
-	    
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public String SaveSignUp(SignUpDto bean) throws UserSignupException {
+        // TODO Auto-generated method stub
+
+        if (signUpRepository.findByEmail(bean.getEmail()).orElse(null) != null) {
+            throw new UserSignupException("User Already Registered!");
+        }
+
+        if (!bean.getUsername().matches("[a-zA-Z0-9]+") || bean.getUsername().length() < 5) {
+            throw new UserSignupException("Username must contain at least 5 alphanumeric characters.");
+        }
+        if (bean.getPassword().length() < 8) {
+            throw new UserSignupException("Password must be at least 8 characters long.");
+        }
+        if (!bean.getEmail().endsWith("@deloitte.com")) {
+            throw new UserSignupException("Email must belong to deloitte.com domain.");
+        }
+
+
         LoginTable login = new LoginTable();
         login.setUserName(bean.getUsername());
         login.setPassword(passwordEncoder.encode(bean.getPassword()));
         UserRoles roles = userRolesRepository.findByRoleCode("002").get();
         login.setRole(roles);
-        
+
         login = loginRepository.save(login);
 
         // Create a SignUpTable entity
         SignUpTable signUpTable = new SignUpTable();
         signUpTable.setEmail(bean.getEmail());
         signUpTable.setLogin(login);
-        
+
         signUpRepository.save(signUpTable);
-		
-		return "SUCCESS";
-	}
-	
-	
-	public JWTResponse validateLogin(JWTRequest request) throws AuthorizationException{
-		JWTResponse response = null;
-		try {
-			this.doAuthenticate(request.getUsername(), request.getPassString());
+
+        return "SUCCESS";
+    }
+
+
+    public JWTResponse validateLogin(JWTRequest request) throws AuthorizationException {
+        JWTResponse response = null;
+        try {
+            this.doAuthenticate(request.getUsername(), request.getPassString());
             UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
             String token = this.jwtHelper.generateToken(userDetails);
             response = new JWTResponse(token, userDetails.getUsername());
 
             return response;
-		}
-		catch (BadCredentialsException e) {
-			// TODO: handle exception
-			throw new AuthorizationException("Credentials Not Valid!");
-		}
-	}
-	
-	   private void doAuthenticate(String email, String password) {
-	        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
-	        authenticationManager.authenticate(authentication);
-	    }
-	   
+        } catch (BadCredentialsException e) {
+            // TODO: handle exception
+            throw new AuthorizationException("Credentials Not Valid!");
+        }
+    }
+
+    private void doAuthenticate(String email, String password) {
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
+        authenticationManager.authenticate(authentication);
+    }
+
+    @Override
+    public SignUpTable forgotPassword(String email) throws UserNotFoundException {
+        Optional<SignUpTable> userOptional = signUpRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+
+        SignUpTable user = userOptional.get();
+        user.setPasswordResetToken(generateToken());
+
+        user = signUpRepository.save(user);
+        return user;
+    }
+
+    @Override
+    public LoginTable resetPassword(String token, String password) throws UserNotFoundException {
+        Optional<SignUpTable> userOptional = Optional.ofNullable(signUpRepository.findByResetPasswordToken(token));
+
+        if (userOptional.isEmpty()) {
+            throw new UserNotFoundException();
+        }
+
+        SignUpTable user = userOptional.get();
+        LoginTable loginTable = user.getLogin();
+
+        loginTable.setPassword(password);
+        loginTable.setPassword(passwordEncoder.encode(loginTable.getPassword()));
+        user.setPasswordResetToken(null);
+
+        signUpRepository.save(user);
+
+        return loginTable;
+    }
+
+    @Override
+    public String generateToken() {
+        return UUID.randomUUID() + UUID.randomUUID().toString();
+    }
 }
