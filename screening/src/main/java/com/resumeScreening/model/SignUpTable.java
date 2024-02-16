@@ -14,11 +14,12 @@ public class SignUpTable {
 
     @Column(name = "email", unique = true)
     private String email;
-
+    private String passwordResetToken;
     @OneToOne
     @JoinColumn(name = "login_id")
     @JsonBackReference
     private LoginTable login;
+
 
     public Long getSignUpId() {
         return signUpId;
@@ -44,5 +45,11 @@ public class SignUpTable {
         this.login = login;
     }
 
+    public String getPasswordResetToken() {
+        return passwordResetToken;
+    }
 
+    public void setPasswordResetToken(String passwordResetToken) {
+        this.passwordResetToken = passwordResetToken;
+    }
 }
