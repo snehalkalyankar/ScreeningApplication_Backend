@@ -32,13 +32,15 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody JWTRequest request) {
         JWTResponse response = null;
-
+        logger.debug("API ::: /login");
         response = userService.validateLogin(request);
+       
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/update-password")
     public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateRequest request) {
+    	logger.debug("API ::: /update-password");
         try {
             SignUpTable user = userService.updatePassword(request.getCurrentPassword(), request.getNewPassword(), request.getEmail());
             return new ResponseEntity<>(user, HttpStatus.OK);
@@ -50,7 +52,7 @@ public class AuthenticationController {
     @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@RequestBody SignUpDto bean) {
         String status = null;
-
+        logger.debug("API ::: /signUp");
         status = userService.SaveSignUp(bean);
 
         return ResponseEntity.ok(status);
@@ -73,7 +75,7 @@ public class AuthenticationController {
             senderService.sendEmail(details);
             String message = "Mail sent successfully";
             System.out.println(message);
-
+        logger.debug("API ::: /forgot-password");
             return new ResponseEntity<>(gson.toJson(message), HttpStatus.OK);
         } catch (UserNotFoundException e) {
             throw new RuntimeException(e);

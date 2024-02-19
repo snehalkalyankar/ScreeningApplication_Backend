@@ -2,6 +2,8 @@ package com.resumeScreening.exception;
 
 import java.time.LocalDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -9,10 +11,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.resumeScreening.controller.AuthenticationController;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+	
+	  private Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 	
 	@ExceptionHandler(AuthorizationException.class)
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)
@@ -28,7 +34,8 @@ public class GlobalExceptionHandler {
 		errorResponse.setExceptionMessege(statusMessage.substring(statusMessage.indexOf(" ") + 1));
 		errorResponse.setPath(request.getRequestURI());
 		errorResponse.setTimeStamp(LocalDateTime.now());
-		
+		logger.error("Authentication Failed", authorizationException);
+	//	logger.debug("Authentication Failed", authorizationException); 
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 	}
 	
@@ -45,7 +52,8 @@ public class GlobalExceptionHandler {
 	    errorResponse.setExceptionMessege(signupException.getMessage());
 	    errorResponse.setPath(request.getRequestURI());
 	    errorResponse.setTimeStamp(LocalDateTime.now());
-	    
+	    logger.error(statusMessage.substring(statusMessage.indexOf(" ") + 1), signupException);
+	  //  logger.debug(statusMessage.substring(statusMessage.indexOf(" ") + 1), signupException);
 	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 	}
 
