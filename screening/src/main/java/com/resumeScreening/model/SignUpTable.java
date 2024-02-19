@@ -3,6 +3,8 @@ package com.resumeScreening.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
+import java.time.LocalTime;
+
 @Entity
 @Table(name = "signup_table")
 public class SignUpTable {
@@ -16,6 +18,8 @@ public class SignUpTable {
     private String email;
     @Column(name = "otp")
     private Long otp;
+    @Column(name = "otp_expiration_time")
+    private LocalTime otpExpirationTime;
     @OneToOne
     @JoinColumn(name = "login_id")
     @JsonBackReference
@@ -52,5 +56,13 @@ public class SignUpTable {
 
     public void setOtp(Long otp) {
         this.otp = otp;
+    }
+
+    public LocalTime getOtpExpirationTime() {
+        return otpExpirationTime;
+    }
+
+    public void setOtpExpirationTime(LocalTime otpExpirationTime) {
+        this.otpExpirationTime = otpExpirationTime;
     }
 }

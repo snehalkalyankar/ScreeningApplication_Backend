@@ -23,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.Optional;
 import java.util.Random;
 
@@ -170,5 +171,14 @@ public class UserServiceImpl implements UserService {
         signUpRepository.save(user);
 
         return user;
+    }
+    @Override
+    public String validateOTP(Long otp) throws UserNotFoundException {
+        SignUpTable user = Optional.ofNullable(signUpRepository.findByOtp(otp)).orElseThrow(UserNotFoundException::new);
+        if (user.getOtpExpirationTime().isBefore(LocalTime.now())) {
+            user.setOtp(null);
+            throw new RuntimeException("Your OTP is expired. Create a new OTP if you want to Proceed.");
+        }
+        return "OTP Validated Successfully.";
     }
 }

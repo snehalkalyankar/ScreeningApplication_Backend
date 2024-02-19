@@ -1,5 +1,6 @@
 package com.resumeScreening.controller;
 
+import com.google.gson.Gson;
 import com.resumeScreening.bean.JWTRequest;
 import com.resumeScreening.bean.JWTResponse;
 import com.resumeScreening.bean.PasswordUpdateRequest;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationController {
-
+    private static final Gson gson = new Gson();
     @Autowired
     private UserService userService;
     @Autowired
@@ -73,7 +74,7 @@ public class AuthenticationController {
             String message = "Mail sent successfully";
             System.out.println(message);
 
-            return new ResponseEntity<>(message, HttpStatus.OK);
+            return new ResponseEntity<>(gson.toJson(message), HttpStatus.OK);
         } catch (UserNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -101,5 +102,10 @@ public class AuthenticationController {
     @PutMapping("/forgot-password")
     public ResponseEntity<?> forgotUserPassword(@RequestParam Long otp, @RequestParam String password) throws UserNotFoundException {
         return new ResponseEntity<>(userService.forgotPassword(otp, password), HttpStatus.OK);
+    }
+
+    @GetMapping("/validate-otp/{otp}")
+    public ResponseEntity<?> validateOtp(@PathVariable Long otp) throws UserNotFoundException {
+        return new ResponseEntity<>(gson.toJson(userService.validateOTP(otp)), HttpStatus.OK);
     }
 }

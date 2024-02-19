@@ -22,4 +22,5 @@ public interface UserService {
     void saveOtp(String email, Long otp) throws UserNotFoundException;
 
     SignUpTable forgotPassword(Long otp, String password) throws UserNotFoundException;
+    String validateOTP(Long otp) throws UserNotFoundException;
 }
