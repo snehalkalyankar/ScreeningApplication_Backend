@@ -41,13 +41,6 @@ public class AuthenticationController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/update-password")
-    public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateRequest request) throws UserNotFoundException {
-        logger.debug("API ::: /update-password");
-        SignUpTable user = userService.updatePassword(request.getCurrentPassword(), request.getNewPassword(), request.getEmail());
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
     @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@RequestBody SignUpDto bean) {
         String status = null;
