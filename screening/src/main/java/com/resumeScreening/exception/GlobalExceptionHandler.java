@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
 		errorResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 		errorResponse.setExceptionType(authorizationException.getClass().getName());
 		errorResponse.setMessage("Authentication Failed");
-		errorResponse.setExceptionMessege(statusMessage.substring(statusMessage.indexOf(" ") + 1));
+		errorResponse.setExceptionMessage(statusMessage.substring(statusMessage.indexOf(" ") + 1));
 		errorResponse.setPath(request.getRequestURI());
 		errorResponse.setTimeStamp(LocalDateTime.now());
 		logger.error("Authentication Failed", authorizationException);
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
 	    errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
 	    errorResponse.setExceptionType(signupException.getClass().getName());
 	    errorResponse.setMessage(statusMessage.substring(statusMessage.indexOf(" ") + 1));
-	    errorResponse.setExceptionMessege(signupException.getMessage());
+	    errorResponse.setExceptionMessage(signupException.getMessage());
 	    errorResponse.setPath(request.getRequestURI());
 	    errorResponse.setTimeStamp(LocalDateTime.now());
 	    logger.error(statusMessage.substring(statusMessage.indexOf(" ") + 1), signupException);
@@ -57,6 +57,22 @@ public class GlobalExceptionHandler {
 	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 	}
 
-	
+	@ExceptionHandler(UserNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ResponseEntity<ExceptionResponse> handleUserNotFoundException(
+			UserNotFoundException userNotFoundException, final HttpServletRequest request) {
+
+		ExceptionResponse errorResponse = new ExceptionResponse();
+		String statusMessage = HttpStatus.NOT_FOUND.toString();
+		errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
+		errorResponse.setExceptionType(userNotFoundException.getClass().getName());
+		errorResponse.setMessage(statusMessage.substring(statusMessage.indexOf(" ") + 1));
+		errorResponse.setExceptionMessage(userNotFoundException.getMessage());
+		errorResponse.setPath(request.getRequestURI());
+		errorResponse.setTimeStamp(LocalDateTime.now());
+		logger.error(statusMessage.substring(statusMessage.indexOf(" ") + 1), userNotFoundException);
+		//  logger.debug(statusMessage.substring(statusMessage.indexOf(" ") + 1), userNotFoundException);
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+	}
 	
 }

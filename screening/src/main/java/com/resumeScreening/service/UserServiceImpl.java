@@ -48,17 +48,19 @@ public class UserServiceImpl implements UserService {
     private AuthenticationManager authenticationManager;
 
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public SignUpTable updatePassword(String currentPassword, String newPassword, String email) throws UserNotFoundException {
         Optional<SignUpTable> user = signUpRepository.findByEmail(email);
         if (user.isEmpty()) {
-            throw new UserNotFoundException();
+            throw new UserNotFoundException("User not Present in Database");
         }
         SignUpTable existingUser = user.get();
         LoginTable login = existingUser.getLogin();
+
         boolean isCurrentPasswordAndExistingPasswordMatches = passwordEncoder.matches(login.getPassword(), currentPassword);
         if (login.getPassword() != null) {
             if (!isCurrentPasswordAndExistingPasswordMatches) {
-                throw new RuntimeException("Password does not match");
+                throw new UserNotFoundException("Password does not match");
             }
             login.setPassword(newPassword);
             login.setPassword(passwordEncoder.encode(newPassword));
@@ -124,7 +126,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public SignUpTable getUser(String email) throws UserNotFoundException {
-        return signUpRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        Optional<SignUpTable> byEmail = signUpRepository.findByEmail(email);
+        if (byEmail.isEmpty()) {
+            throw new UserNotFoundException("User not Present in Database");
+        }
+        return byEmail.get();
     }
 
     private void doAuthenticate(String email, String password) {
@@ -135,17 +141,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public Long generateOtp(String email) throws UserNotFoundException {
         if (Optional.ofNullable(signUpRepository.findByEmail(email)).isEmpty())
-            throw new UserNotFoundException();
+            throw new UserNotFoundException("User not Present in Database");
         Random random = new Random();
         return (long) (random.nextInt(900000) + 100000);
     }
 
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public void saveOtp(String email, Long otp) throws UserNotFoundException {
         Optional<SignUpTable> userOptional = signUpRepository.findByEmail(email);
 
         if (userOptional.isEmpty()) {
-            throw new UserNotFoundException();
+            throw new UserNotFoundException("User not Present in Database");
         }
 
         SignUpTable user = userOptional.get();
@@ -154,11 +161,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public SignUpTable forgotPassword(Long otp, String password) throws UserNotFoundException {
         Optional<SignUpTable> userOptional = Optional.ofNullable(signUpRepository.findByOtp(otp));
 
         if (userOptional.isEmpty()) {
-            throw new UserNotFoundException();
+            throw new UserNotFoundException("User not Present in Database");
         }
 
         SignUpTable user = userOptional.get();
@@ -172,12 +180,19 @@ public class UserServiceImpl implements UserService {
 
         return user;
     }
+
     @Override
     public String validateOTP(Long otp) throws UserNotFoundException {
-        SignUpTable user = Optional.ofNullable(signUpRepository.findByOtp(otp)).orElseThrow(UserNotFoundException::new);
+        Optional<SignUpTable> userOp = Optional.ofNullable(signUpRepository.findByOtp(otp));
+
+        if (userOp.isEmpty()) {
+            throw new UserNotFoundException("User not Present in Database or OTP entered is incorrect");
+        }
+        SignUpTable user = userOp.get();
+
         if (user.getOtpExpirationTime().isBefore(LocalTime.now())) {
             user.setOtp(null);
-            throw new RuntimeException("Your OTP is expired. Create a new OTP if you want to Proceed.");
+            throw new UserNotFoundException("Your OTP is expired. Create a new OTP if you want to Proceed.");
         }
         return "OTP Validated Successfully.";
     }

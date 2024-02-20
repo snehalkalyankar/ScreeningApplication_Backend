@@ -4,65 +4,63 @@ import java.time.LocalDateTime;
 
 public class ExceptionResponse {
 
-	private int status;
-	
-	private String message;
-	
-	private String exceptionMessege;
-	
-	private String exceptionType;
-	
-	private String path;
-	
-	private LocalDateTime timeStamp;
+    private int status;
 
-	public String getExceptionMessege() {
-		return exceptionMessege;
-	}
+    private String message;
 
-	public void setExceptionMessege(String exceptionMessege) {
-		this.exceptionMessege = exceptionMessege;
-	}
+    private String exceptionMessage;
 
-	public int getStatus() {
-		return status;
-	}
+    private String exceptionType;
 
-	public void setStatus(int status) {
-		this.status = status;
-	}
+    private String path;
 
-	public String getMessage() {
-		return message;
-	}
+    private LocalDateTime timeStamp;
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    public String getExceptionMessage() {
+        return exceptionMessage;
+    }
 
-	public String getExceptionType() {
-		return exceptionType;
-	}
+    public void setExceptionMessage(String exceptionMessage) {
+        this.exceptionMessage = exceptionMessage;
+    }
 
-	public void setExceptionType(String exceptionType) {
-		this.exceptionType = exceptionType;
-	}
+    public int getStatus() {
+        return status;
+    }
 
-	public String getPath() {
-		return path;
-	}
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
-	public void setPath(String path) {
-		this.path = path;
-	}
+    public String getMessage() {
+        return message;
+    }
 
-	public LocalDateTime getTimeStamp() {
-		return timeStamp;
-	}
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
-	public void setTimeStamp(LocalDateTime timeStamp) {
-		this.timeStamp = timeStamp;
-	}
+    public String getExceptionType() {
+        return exceptionType;
+    }
 
-	
+    public void setExceptionType(String exceptionType) {
+        this.exceptionType = exceptionType;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public LocalDateTime getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(LocalDateTime timeStamp) {
+        this.timeStamp = timeStamp;
+    }
 }

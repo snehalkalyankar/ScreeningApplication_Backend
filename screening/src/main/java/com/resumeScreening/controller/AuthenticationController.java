@@ -34,19 +34,15 @@ public class AuthenticationController {
         JWTResponse response = null;
         logger.debug("API ::: /login");
         response = userService.validateLogin(request);
-       
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/update-password")
-    public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateRequest request) {
-    	logger.debug("API ::: /update-password");
-        try {
-            SignUpTable user = userService.updatePassword(request.getCurrentPassword(), request.getNewPassword(), request.getEmail());
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateRequest request) throws UserNotFoundException {
+        logger.debug("API ::: /update-password");
+        SignUpTable user = userService.updatePassword(request.getCurrentPassword(), request.getNewPassword(), request.getEmail());
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping("/signUp")
@@ -59,28 +55,24 @@ public class AuthenticationController {
     }
 
     @PutMapping("/sentOTP/{email}")
-    public ResponseEntity<?> sentOTPForForgotUserPassword(@PathVariable String email) {
-        try {
-            //generate OTP
-            Long otp = userService.generateOtp(email);
-            System.out.println("Otp generated");
+    public ResponseEntity<?> sentOTPForForgotUserPassword(@PathVariable String email) throws UserNotFoundException {
+        //generate OTP
+        Long otp = userService.generateOtp(email);
+        System.out.println("Otp generated");
 
-            // Save the OTP to the database
-            userService.saveOtp(email, otp);
-            System.out.println("Otp saved to database");
+        // Save the OTP to the database
+        userService.saveOtp(email, otp);
+        System.out.println("Otp saved to database");
 
-            // Email the user with the OTP
-            SignUpTable user = userService.getUser(email);
-            EmailDetailsDto details = getEmailDetails(email, user, otp);
-            senderService.sendEmail(details);
-            String message = "Mail sent successfully";
-            System.out.println(message);
+        // Email the user with the OTP
+        SignUpTable user = userService.getUser(email);
+        EmailDetailsDto details = getEmailDetails(email, user, otp);
+        senderService.sendEmail(details);
+        String message = "Mail sent successfully";
+        System.out.println(message);
+
         logger.debug("API ::: /forgot-password");
-            return new ResponseEntity<>(gson.toJson(message), HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
+        return new ResponseEntity<>(gson.toJson(message), HttpStatus.OK);
     }
 
     private static EmailDetailsDto getEmailDetails(String email, SignUpTable user, Long otp) {
@@ -90,7 +82,7 @@ public class AuthenticationController {
                 + otp
                 + "\nNote: this OTP is set to expire in 5 minutes."
                 + "\n\nRegards"
-                + "\nKanban Team";
+                + "\nAdmin Team";
 
         String subject = "Here's your One Time Password (OTP) - Expire in 5 minutes!";
 
