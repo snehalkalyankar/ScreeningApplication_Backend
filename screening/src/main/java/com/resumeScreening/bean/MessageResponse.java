@@ -2,7 +2,7 @@ package com.resumeScreening.bean;
 
 import java.time.LocalDateTime;
 
-public class ForgotPasswordResponse {
+public class MessageResponse {
     private String status;
     private String message;
     private LocalDateTime timeStamp;

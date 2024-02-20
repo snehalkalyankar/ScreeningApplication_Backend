@@ -2,6 +2,7 @@ package com.resumeScreening.service;
 
 import com.resumeScreening.bean.JWTRequest;
 import com.resumeScreening.bean.JWTResponse;
+import com.resumeScreening.bean.UpdatePasswordRequest;
 import com.resumeScreening.config.JWTHelper;
 import com.resumeScreening.dto.SignUpDto;
 import com.resumeScreening.exception.AuthorizationException;
@@ -163,8 +164,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackOn = Exception.class)
-    public SignUpTable forgotPassword(Long otp, String password) throws UserNotFoundException {
-        Optional<SignUpTable> userOptional = Optional.ofNullable(signUpRepository.findByOtp(otp));
+    public SignUpTable forgotPassword(UpdatePasswordRequest request) throws UserNotFoundException {
+        Optional<SignUpTable> userOptional =
+                Optional.ofNullable(signUpRepository.findByOtpAndEmail(request.getOtp(), request.getEmail()));
 
         if (userOptional.isEmpty()) {
             throw new UserNotFoundException("Invalid OTP");
@@ -172,7 +174,7 @@ public class UserServiceImpl implements UserService {
 
         SignUpTable user = userOptional.get();
         LoginTable loginTable = user.getLogin();
-        loginTable.setPassword(password);
+        loginTable.setPassword(request.getPassword());
         loginTable.setPassword(passwordEncoder.encode(loginTable.getPassword()));
         user.setLogin(loginTable);
         user.setOtp(null);

@@ -1,10 +1,10 @@
 package com.resumeScreening.controller;
 
 import com.google.gson.Gson;
-import com.resumeScreening.bean.ForgotPasswordResponse;
 import com.resumeScreening.bean.JWTRequest;
 import com.resumeScreening.bean.JWTResponse;
-import com.resumeScreening.bean.PasswordUpdateRequest;
+import com.resumeScreening.bean.MessageResponse;
+import com.resumeScreening.bean.UpdatePasswordRequest;
 import com.resumeScreening.dto.EmailDetailsDto;
 import com.resumeScreening.dto.SignUpDto;
 import com.resumeScreening.exception.UserNotFoundException;
@@ -40,7 +40,7 @@ public class AuthenticationController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    
+
     @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@RequestBody SignUpDto bean) {
         String status = null;
@@ -53,7 +53,7 @@ public class AuthenticationController {
     @PutMapping("/sentOTP")
     public ResponseEntity<?> sentOTPForForgotUserPassword(@RequestParam String email) {
         //generate OTP
-    	 logger.debug("API ::: /sentOTP");
+        logger.debug("API ::: /sentOTP");
         Long otp = userService.generateOtp(email);
         System.out.println("Otp generated");
 
@@ -66,12 +66,12 @@ public class AuthenticationController {
         EmailDetailsDto details = getEmailDetails(email, user, otp);
         senderService.sendEmail(details);
 
-        ForgotPasswordResponse response = new ForgotPasswordResponse();
+        MessageResponse response = new MessageResponse();
         response.setStatus("Success");
         response.setMessage("Mail sent Successfully");
         response.setTimeStamp(LocalDateTime.now());
 
-       
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -94,12 +94,17 @@ public class AuthenticationController {
     }
 
     @PutMapping("/forgot-password")
-    public ResponseEntity<?> forgotUserPassword(@RequestParam Long otp, @RequestParam String password) throws UserNotFoundException {
-        return new ResponseEntity<>(userService.forgotPassword(otp, password), HttpStatus.OK);
+    public ResponseEntity<?> forgotUserPassword(@RequestBody UpdatePasswordRequest request) throws UserNotFoundException {
+        return new ResponseEntity<>(userService.forgotPassword(request), HttpStatus.OK);
     }
 
     @GetMapping("/validate-otp")
     public ResponseEntity<?> validateOtp(@RequestParam Long otp) throws UserNotFoundException {
-        return new ResponseEntity<>(gson.toJson(userService.validateOTP(otp)), HttpStatus.OK);
+        MessageResponse response = new MessageResponse();
+        String res = userService.validateOTP(otp);
+        response.setStatus("Success");
+        response.setMessage(res);
+        response.setTimeStamp(LocalDateTime.now());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

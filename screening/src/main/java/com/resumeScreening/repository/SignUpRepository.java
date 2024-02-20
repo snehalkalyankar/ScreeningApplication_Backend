@@ -1,14 +1,16 @@
 package com.resumeScreening.repository;
 
-import java.util.Optional;
-
+import com.resumeScreening.exception.UserNotFoundException;
+import com.resumeScreening.model.SignUpTable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.resumeScreening.model.SignUpTable;
+import java.util.Optional;
 
 public interface SignUpRepository extends JpaRepository<SignUpTable, Long> {
-	Optional<SignUpTable> findByEmail(String email);
-	SignUpTable findByOtp(Long otp);
-	
+    Optional<SignUpTable> findByEmail(String email);
+
+    SignUpTable findByOtpAndEmail(Long otp, String email);
+    SignUpTable findByOtp(Long otp);
+
 }
 
