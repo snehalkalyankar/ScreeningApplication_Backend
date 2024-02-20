@@ -40,7 +40,7 @@ public class AuthenticationController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
+    
     @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@RequestBody SignUpDto bean) {
         String status = null;
@@ -50,9 +50,10 @@ public class AuthenticationController {
         return ResponseEntity.ok(status);
     }
 
-    @PutMapping("/sentOTP/{email}")
-    public ResponseEntity<?> sentOTPForForgotUserPassword(@PathVariable String email) throws UserNotFoundException {
+    @PutMapping("/sentOTP")
+    public ResponseEntity<?> sentOTPForForgotUserPassword(@RequestParam String email) {
         //generate OTP
+    	 logger.debug("API ::: /sentOTP");
         Long otp = userService.generateOtp(email);
         System.out.println("Otp generated");
 
@@ -70,7 +71,7 @@ public class AuthenticationController {
         response.setMessage("Mail sent Successfully");
         response.setTimeStamp(LocalDateTime.now());
 
-        logger.debug("API ::: /forgot-password");
+       
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -97,8 +98,8 @@ public class AuthenticationController {
         return new ResponseEntity<>(userService.forgotPassword(otp, password), HttpStatus.OK);
     }
 
-    @GetMapping("/validate-otp/{otp}")
-    public ResponseEntity<?> validateOtp(@PathVariable Long otp) throws UserNotFoundException {
+    @GetMapping("/validate-otp")
+    public ResponseEntity<?> validateOtp(@RequestParam Long otp) throws UserNotFoundException {
         return new ResponseEntity<>(gson.toJson(userService.validateOTP(otp)), HttpStatus.OK);
     }
 }
