@@ -1,6 +1,7 @@
 package com.resumeScreening.controller;
 
 import com.google.gson.Gson;
+import com.resumeScreening.bean.ForgotPasswordResponse;
 import com.resumeScreening.bean.JWTRequest;
 import com.resumeScreening.bean.JWTResponse;
 import com.resumeScreening.bean.PasswordUpdateRequest;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/auth")
@@ -68,11 +71,14 @@ public class AuthenticationController {
         SignUpTable user = userService.getUser(email);
         EmailDetailsDto details = getEmailDetails(email, user, otp);
         senderService.sendEmail(details);
-        String message = "Mail sent successfully";
-        System.out.println(message);
+
+        ForgotPasswordResponse response = new ForgotPasswordResponse();
+        response.setStatus("Success");
+        response.setMessage("Mail sent Successfully");
+        response.setTimeStamp(LocalDateTime.now());
 
         logger.debug("API ::: /forgot-password");
-        return new ResponseEntity<>(gson.toJson(message), HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private static EmailDetailsDto getEmailDetails(String email, SignUpTable user, Long otp) {
