@@ -52,12 +52,12 @@ public class UserServiceImpl implements UserService {
     public SignUpTable updatePassword(String currentPassword, String newPassword, String email) throws UserNotFoundException {
         Optional<SignUpTable> user = signUpRepository.findByEmail(email);
         if (user.isEmpty()) {
-            throw new UserNotFoundException("User not Present in Database");
+            throw new UserNotFoundException("User with this email not Present in Database");
         }
         SignUpTable existingUser = user.get();
         LoginTable login = existingUser.getLogin();
 
-        boolean isCurrentPasswordAndExistingPasswordMatches = passwordEncoder.matches(login.getPassword(), currentPassword);
+        boolean isCurrentPasswordAndExistingPasswordMatches = passwordEncoder.matches(currentPassword, login.getPassword());
         if (login.getPassword() != null) {
             if (!isCurrentPasswordAndExistingPasswordMatches) {
                 throw new UserNotFoundException("Password does not match");
@@ -141,7 +141,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Long generateOtp(String email) throws UserNotFoundException {
         if (Optional.ofNullable(signUpRepository.findByEmail(email)).isEmpty())
-            throw new UserNotFoundException("User not Present in Database");
+            throw new UserNotFoundException("User with this email not Present in Database");
         Random random = new Random();
         return (long) (random.nextInt(900000) + 100000);
     }
@@ -152,11 +152,12 @@ public class UserServiceImpl implements UserService {
         Optional<SignUpTable> userOptional = signUpRepository.findByEmail(email);
 
         if (userOptional.isEmpty()) {
-            throw new UserNotFoundException("User not Present in Database");
+            throw new UserNotFoundException("User with this email not Present in Database");
         }
 
         SignUpTable user = userOptional.get();
         user.setOtp(otp);
+        user.setOtpExpirationTime(LocalTime.now().plusMinutes(5));
         signUpRepository.save(user);
     }
 
@@ -166,7 +167,7 @@ public class UserServiceImpl implements UserService {
         Optional<SignUpTable> userOptional = Optional.ofNullable(signUpRepository.findByOtp(otp));
 
         if (userOptional.isEmpty()) {
-            throw new UserNotFoundException("User not Present in Database");
+            throw new UserNotFoundException("Invalid OTP");
         }
 
         SignUpTable user = userOptional.get();
@@ -175,7 +176,7 @@ public class UserServiceImpl implements UserService {
         loginTable.setPassword(passwordEncoder.encode(loginTable.getPassword()));
         user.setLogin(loginTable);
         user.setOtp(null);
-
+        user.setOtpExpirationTime(null);
         signUpRepository.save(user);
 
         return user;
@@ -186,7 +187,7 @@ public class UserServiceImpl implements UserService {
         Optional<SignUpTable> userOp = Optional.ofNullable(signUpRepository.findByOtp(otp));
 
         if (userOp.isEmpty()) {
-            throw new UserNotFoundException("User not Present in Database or OTP entered is incorrect");
+            throw new UserNotFoundException("Invalid OTP");
         }
         SignUpTable user = userOp.get();
 
