@@ -29,7 +29,7 @@ public class SecurityConfig{
 			.cors(cors -> cors.disable())
 			.authorizeHttpRequests(auth -> 
 			auth.requestMatchers("/auth/**").permitAll()
-			.requestMatchers("/home/**")
+			.requestMatchers("/user/**")
 			.authenticated()
 			.anyRequest().authenticated())
 			.exceptionHandling(excpt -> excpt.authenticationEntryPoint(authEntrypoint))
