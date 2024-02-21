@@ -1,8 +1,8 @@
 package com.resumeScreening.service;
 
+import com.resumeScreening.bean.ForgotPasswordRequest;
 import com.resumeScreening.bean.JWTRequest;
 import com.resumeScreening.bean.JWTResponse;
-import com.resumeScreening.bean.ForgotPasswordRequest;
 import com.resumeScreening.config.JWTHelper;
 import com.resumeScreening.dto.SignUpDto;
 import com.resumeScreening.exception.AuthorizationException;
@@ -25,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
 
@@ -158,7 +159,7 @@ public class UserServiceImpl implements UserService {
 
         SignUpTable user = userOptional.get();
         user.setOtp(otp);
-        user.setOtpExpirationTime(LocalTime.now().plusMinutes(5));
+        user.setOtpExpirationTime(new Date(System.currentTimeMillis()+5*60*1000));
         signUpRepository.save(user);
     }
 
@@ -193,7 +194,7 @@ public class UserServiceImpl implements UserService {
         }
         SignUpTable user = userOp.get();
 
-        if (user.getOtpExpirationTime().isBefore(LocalTime.now())) {
+        if (user.getOtpExpirationTime().before(new Date())) {
             user.setOtp(null);
             throw new UserNotFoundException("Your OTP is expired. Create a new OTP if you want to Proceed.");
         }

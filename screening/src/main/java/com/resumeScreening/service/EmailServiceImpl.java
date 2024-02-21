@@ -1,6 +1,10 @@
 package com.resumeScreening.service;
 
+import com.resumeScreening.controller.AuthenticationController;
 import com.resumeScreening.dto.EmailDetailsDto;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -13,6 +17,8 @@ public class EmailServiceImpl implements EmailService {
     private JavaMailSender javaMailSender;
     @Value("${spring.mail.username}")
     private String sender;
+    
+    private Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     public void sendEmail(EmailDetailsDto details) {
         try {
@@ -23,6 +29,7 @@ public class EmailServiceImpl implements EmailService {
             mailMessage.setSubject(details.getSubject());
             javaMailSender.send(mailMessage);
         } catch (Exception ignored) {
+        	logger.debug(ignored.getMessage());
         }
     }
 }
