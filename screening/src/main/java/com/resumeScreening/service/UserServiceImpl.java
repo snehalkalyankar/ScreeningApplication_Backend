@@ -2,7 +2,7 @@ package com.resumeScreening.service;
 
 import com.resumeScreening.bean.JWTRequest;
 import com.resumeScreening.bean.JWTResponse;
-import com.resumeScreening.bean.UpdatePasswordRequest;
+import com.resumeScreening.bean.ForgotPasswordRequest;
 import com.resumeScreening.config.JWTHelper;
 import com.resumeScreening.dto.SignUpDto;
 import com.resumeScreening.exception.AuthorizationException;
@@ -164,7 +164,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackOn = Exception.class)
-    public SignUpTable forgotPassword(UpdatePasswordRequest request) throws UserNotFoundException {
+    public SignUpTable forgotPassword(ForgotPasswordRequest request) throws UserNotFoundException {
         Optional<SignUpTable> userOptional =
                 Optional.ofNullable(signUpRepository.findByOtpAndEmail(request.getOtp(), request.getEmail()));
 

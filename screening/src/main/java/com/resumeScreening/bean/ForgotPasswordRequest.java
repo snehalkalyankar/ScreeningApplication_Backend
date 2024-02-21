@@ -1,6 +1,6 @@
 package com.resumeScreening.bean;
 
-public class UpdatePasswordRequest {
+public class ForgotPasswordRequest {
     private Long otp;
     private String email;
     private String password;

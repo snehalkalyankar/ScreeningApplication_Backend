@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.resumeScreening.bean.JWTRequest;
 import com.resumeScreening.bean.JWTResponse;
 import com.resumeScreening.bean.MessageResponse;
-import com.resumeScreening.bean.UpdatePasswordRequest;
+import com.resumeScreening.bean.ForgotPasswordRequest;
 import com.resumeScreening.dto.EmailDetailsDto;
 import com.resumeScreening.dto.SignUpDto;
 import com.resumeScreening.exception.UserNotFoundException;
@@ -99,7 +99,7 @@ public class AuthenticationController {
     }
 
     @PutMapping("/forgot-password")
-    public ResponseEntity<?> forgotUserPassword(@RequestBody UpdatePasswordRequest request) throws UserNotFoundException {
+    public ResponseEntity<?> forgotUserPassword(@RequestBody ForgotPasswordRequest request) throws UserNotFoundException {
         return new ResponseEntity<>(userService.forgotPassword(request), HttpStatus.OK);
     }
 

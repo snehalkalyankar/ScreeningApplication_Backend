@@ -2,7 +2,7 @@ package com.resumeScreening.service;
 
 import com.resumeScreening.bean.JWTRequest;
 import com.resumeScreening.bean.JWTResponse;
-import com.resumeScreening.bean.UpdatePasswordRequest;
+import com.resumeScreening.bean.ForgotPasswordRequest;
 import com.resumeScreening.dto.SignUpDto;
 import com.resumeScreening.exception.AuthorizationException;
 import com.resumeScreening.exception.UserNotFoundException;
@@ -22,6 +22,6 @@ public interface UserService {
 
     void saveOtp(String email, Long otp) throws UserNotFoundException;
 
-    SignUpTable forgotPassword(UpdatePasswordRequest request) throws UserNotFoundException;
+    SignUpTable forgotPassword(ForgotPasswordRequest request) throws UserNotFoundException;
     String validateOTP(Long otp) throws UserNotFoundException;
 }
