@@ -46,8 +46,13 @@ public class AuthenticationController {
         String status = null;
         logger.debug("API ::: /signUp");
         status = userService.SaveSignUp(bean);
+        
+        MessageResponse response = new MessageResponse();
+        response.setStatus("Success");
+        response.setMessage("User Sign Up Successfully");
+        response.setTimeStamp(LocalDateTime.now());
 
-        return ResponseEntity.ok(status);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/sentOTP")
