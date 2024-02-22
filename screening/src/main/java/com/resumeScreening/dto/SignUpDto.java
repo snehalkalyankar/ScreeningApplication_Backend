@@ -9,6 +9,8 @@ public class SignUpDto {
     private String confirmPassword;
 
     public String getEmail() {
+    	
+    	
         return email;
     }
 
