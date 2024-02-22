@@ -81,9 +81,9 @@ public class UserServiceImpl implements UserService {
             throw new UserSignupException("User Already Registered!");
         }
 
-        if (!bean.getUsername().matches("[a-zA-Z0-9]+") || bean.getUsername().length() < 5) {
-            throw new UserSignupException("Username must contain at least 5 alphanumeric characters.");
-        }
+//        if (!bean.getUsername().matches("[a-zA-Z0-9]+") || bean.getUsername().length() < 5) {
+//            throw new UserSignupException("Username must contain at least 5 alphanumeric characters.");
+//        }
         if (bean.getPassword().length() < 8) {
             throw new UserSignupException("Password must be at least 8 characters long.");
         }
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
 
 
         LoginTable login = new LoginTable();
-        login.setUserName(bean.getUsername());
+        login.setUserName(bean.getEmail());
         login.setPassword(passwordEncoder.encode(bean.getPassword()));
         UserRoles roles = userRolesRepository.findByRoleCode("002").get();
         login.setRole(roles);
@@ -118,7 +118,9 @@ public class UserServiceImpl implements UserService {
             UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
             String token = this.jwtHelper.generateToken(userDetails);
             response = new JWTResponse(token, userDetails.getUsername());
-
+            response.setEmail(signUpRepository.findByLogin(
+            		loginRepository.findByUserName(userDetails.getUsername()).get()
+            		).get().getEmail());
             return response;
         } catch (BadCredentialsException e) {
             // TODO: handle exception

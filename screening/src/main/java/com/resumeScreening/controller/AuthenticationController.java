@@ -28,8 +28,6 @@ public class AuthenticationController {
     private UserService userService;
     @Autowired
     private EmailService senderService;
-
-
     private Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     @PostMapping("/login")
@@ -37,7 +35,6 @@ public class AuthenticationController {
         JWTResponse response = null;
         logger.debug("API ::: /login");
         response = userService.validateLogin(request);
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
