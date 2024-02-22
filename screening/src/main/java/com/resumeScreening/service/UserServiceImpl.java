@@ -75,6 +75,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackOn = Exception.class)
     public String SaveSignUp(SignUpDto bean) throws UserSignupException {
+    	
+    	 if (!bean.getPassword().equals(bean.getConfirmPassword())) {
+             throw new UserSignupException("Passwords do not match please chcek....");
+         }
+
         // TODO Auto-generated method stub
 
         if (signUpRepository.findByEmail(bean.getEmail()).orElse(null) != null) {
@@ -84,14 +89,14 @@ public class UserServiceImpl implements UserService {
 //        if (!bean.getUsername().matches("[a-zA-Z0-9]+") || bean.getUsername().length() < 5) {
 //            throw new UserSignupException("Username must contain at least 5 alphanumeric characters.");
 //        }
+        
         if (bean.getPassword().length() < 8) {
             throw new UserSignupException("Password must be at least 8 characters long.");
         }
         if (!bean.getEmail().endsWith("@deloitte.com")) {
             throw new UserSignupException("Email must belong to deloitte.com domain.");
         }
-
-
+       
         LoginTable login = new LoginTable();
         login.setUserName(bean.getEmail());
         login.setPassword(passwordEncoder.encode(bean.getPassword()));
