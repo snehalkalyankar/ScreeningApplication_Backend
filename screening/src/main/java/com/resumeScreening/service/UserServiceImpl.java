@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
         }
        
         LoginTable login = new LoginTable();
-        login.setUserName(bean.getEmail());
+        login.setUserName(bean.getEmail().split("@")[0]);
         login.setPassword(passwordEncoder.encode(bean.getPassword()));
         UserRoles roles = userRolesRepository.findByRoleCode("002").get();
         login.setRole(roles);
@@ -119,13 +119,25 @@ public class UserServiceImpl implements UserService {
     public JWTResponse validateLogin(JWTRequest request) throws AuthorizationException {
         JWTResponse response = null;
         try {
-            this.doAuthenticate(request.getUsername(), request.getPassString());
-            UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-            String token = this.jwtHelper.generateToken(userDetails);
-            response = new JWTResponse(token, userDetails.getUsername());
-            response.setEmail(signUpRepository.findByLogin(
-            		loginRepository.findByUserName(userDetails.getUsername()).get()
-            		).get().getEmail());
+//            this.doAuthenticate(request.getUsername(), request.getPassString());
+//            UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
+//            String token = this.jwtHelper.generateToken(userDetails);
+//            response = new JWTResponse(token, userDetails.getUsername());
+//            response.setEmail(signUpRepository.findByLogin(
+//            		loginRepository.findByUserName(userDetails.getUsername()).get()
+//            		).get().getEmail());
+        	SignUpTable signup=signUpRepository.findByEmail(request.getEmail()).orElse(null);
+        	if(signup==null) {
+        		throw new AuthorizationException("Credentials Not Valid!");
+        	}
+        	this.doAuthenticate(signup.getLogin().getUsername(), request.getPassString());
+	          UserDetails userDetails = userDetailsService.loadUserByUsername(signup.getLogin().getUsername());
+	          String token = this.jwtHelper.generateToken(userDetails);
+	          response = new JWTResponse(token, userDetails.getUsername());
+	          response.setEmail(signUpRepository.findByLogin(
+	          		loginRepository.findByUserName(userDetails.getUsername()).get()
+	          		).get().getEmail());
+        	
             return response;
         } catch (BadCredentialsException e) {
             // TODO: handle exception
